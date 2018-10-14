@@ -12,7 +12,8 @@ import AVFoundation
 class ViewController: UIViewController   {
 
     //MARK: Class Properties
-    var peakArray : NSMutableArray = [];
+    var maxArray : NSMutableArray = [];
+    var peaks = 0;
     var filters : [CIFilter]! = nil
     var videoManager:VideoAnalgesic! = nil
     let pinchFilterIndex = 2
@@ -114,16 +115,25 @@ class ViewController: UIViewController   {
                 var max = -100000.0;
                 
                 while i < x {
-                    let floatValue = bridge.redValues[i] as! Double
+                    let floatValue = self.bridge.redValues[i] as! Double
                     if(floatValue > max) {
                         max = floatValue
                     }
                 }
-                peakArray.add(max); // adding max as an nsnumber
+                maxArray.add(max); // adding max as an nsnumber
             }
             
-            let beatspersec = seconds/peakArray.count;
-            let beatspermin = beatspersec * 60;
+            for (index, element) in self.bridge.redValues.enumerated() {
+                let floatRedValue = self.bridge.redValues[index] as! Double
+                let floatMaxValue = maxArray[index] as! Double
+
+                if(floatRedValue == floatMaxValue) {
+                    peaks += 1
+                }
+            }
+           
+            let bps = seconds/peaks;
+            let bpm = bps * 60;
         }
 
         
