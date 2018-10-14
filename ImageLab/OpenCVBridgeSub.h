@@ -9,5 +9,8 @@
 #import "OpenCVBridge.hh"
 
 @interface OpenCVBridgeSub : OpenCVBridge
+    
+@property (nonatomic) Boolean isCovered;
 
+@property (nonatomic) NSMutableArray* redValues;
 @end
