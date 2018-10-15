@@ -128,6 +128,8 @@
 		B650B3191D8340F0000114A1 /* ImageLab */ = {
 			isa = PBXGroup;
 			children = (
+				B69F98B31DA43DF500F1A1B8 /* OpenCVBridgeSub.h */,
+				B69F98B41DA43DF500F1A1B8 /* OpenCVBridgeSub.mm */,
 				B650B31A1D8340F0000114A1 /* AppDelegate.swift */,
 				B650B31C1D8340F0000114A1 /* ViewController.swift */,
 				B650B31E1D8340F0000114A1 /* Main.storyboard */,
@@ -161,8 +163,6 @@
 		B650B34A1D83435A000114A1 /* ImageDSPUtils */ = {
 			isa = PBXGroup;
 			children = (
-				B69F98B31DA43DF500F1A1B8 /* OpenCVBridgeSub.h */,
-				B69F98B41DA43DF500F1A1B8 /* OpenCVBridgeSub.mm */,
 				B6E657981D95AA4500E75C60 /* VideoAnalgesic.swift */,
 				B67B72B91D996ADE008EDDE1 /* OpenCVBridge.hh */,
 				B67B72BA1D996ADE008EDDE1 /* OpenCVBridge.mm */,

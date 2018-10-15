@@ -56,17 +56,7 @@ class ViewController: UIViewController   {
     
     //MARK: Process image output
     func processImage(inputImage:CIImage) -> CIImage{
-        
-        if(self.bridge.isCovered) {
-            // self.flashButton.isHidden = true
-            // self.cameraButton.isHidden = true
-            self.videoManager.turnOnFlashwithLevel(1)
-        }
-        else {
-            //            self.flashButton.isHidden = false
-            //            self.cameraButton.isHidden = false
-            self.videoManager.turnOffFlash()
-        }
+        self.videoManager.turnOnFlashwithLevel(1.0)
         
         var retImage = inputImage
 
