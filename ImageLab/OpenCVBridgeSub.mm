@@ -65,10 +65,10 @@ using namespace cv;
             [maxArray addObject:max];
         }
         
-        int peaks = 0;
+        float peaks = 0.0;
         
         for (int i = 0; i < self.redValues.count - WINDOW_SIZE; i++) {
-            if (self.redValues[i] == maxArray[i]) { peaks += 1; }
+            if (self.redValues[i] == maxArray[i]) { peaks += 1.0; }
         }
     NSLog(@"peaks: %i", peaks);
         // NOTE
