@@ -7,9 +7,7 @@
 //
 
 #import "OpenCVBridgeSub.h"
-
 #import "AVFoundation/AVFoundation.h"
-
 
 using namespace cv;
 
@@ -27,56 +25,58 @@ using namespace cv;
     }
     
     cv::Mat frame_gray,image_copy;
-    char text[50];
-    char text2[50];
-    char text3[50];
-    float blue [100];
-    float green [100];
-    float red [100];
-    static int counter = 0;
     Scalar avgPixelIntensity;
     cv::Mat image = self.image;
-    
+    static int counter = 0;
+
     cvtColor(image, image_copy, CV_BGRA2BGR); // get rid of alpha for processing
     avgPixelIntensity = cv::mean( image_copy );
-    sprintf(text,"Avg. B: %.0f, G: %.0f, R: %.0f", avgPixelIntensity.val[2],avgPixelIntensity.val[1],avgPixelIntensity.val[0]);
-    cv::putText(image, text, cv::Point(50, 50), FONT_HERSHEY_PLAIN, 0.75, Scalar::all(255), 1, 2);
-//    check if there is something covering the camera that causes any one pixel intensity to dip below 100
-    if (avgPixelIntensity.val[2] < 100 || avgPixelIntensity.val[1] < 100 || avgPixelIntensity.val[0] < 100) {
-        sprintf(text2,"SOMETHING IS COVERING");
-        cv::putText(image,text2,cv::Point(100,100), FONT_HERSHEY_PLAIN, 0.75, Scalar::all(255), 1, 2);
-        self.isCovered = true;
-//        if(counter == 99) {
-//            sprintf(text3,"ARRAYS ARE FULL");
-//            cv::putText(image,text3,cv::Point(100,200), FONT_HERSHEY_PLAIN, 0.75, Scalar::all(255), 1, 2);
-//        }
-       // else {
-        
-//            blue[counter] = avgPixelIntensity.val[2];
-//            green[counter] = avgPixelIntensity.val[1];
-//            red[counter] = avgPixelIntensity.val[0];
-        
-        
-            //NSLog(@"%f", avgPixelIntensity.val[0]);
-
-//            NSNumber *test = @(avgPixelIntensity.val[0]); // adding red value to redValues
-//            NSLog(@"%@", test);
-        
-            self.redValues[counter] = [NSNumber numberWithFloat: avgPixelIntensity.val[0]];
-        // The old syntax
-
-            //NSLog(@"%@", self.redValues[counter]);
-            
-            counter += 1;
-       // }
-    }
-    else {
-        self.isCovered = false;
-    }
     
+    NSLog(@"counter: %i", counter);
+    
+    if (avgPixelIntensity.val[0] > 100) {
+        self.redValues[counter] = [NSNumber numberWithFloat:avgPixelIntensity.val[0]];
+        counter+=1;
+        if([self.redValues count] > 100) {
+            self.bpm = [self beatsPerMinute];
+            NSLog(@"BPM: %i", self.bpm);
+            [self.redValues removeObjectsInRange:NSMakeRange(0, 30)];
+            counter = counter - 30;
+        }
+    }
+    // NSLog(@"counter %i", counter);
     self.image = image;
 }
 
+-(int) beatsPerMinute{
+    // 4s = 100 red values
+    //
+    
+        NSMutableArray* maxArray = [[NSMutableArray alloc] init];
+        int WINDOW_SIZE = 10;
+        NSNumber *max;
+        // var seconds = (self.bridge.redValues.count / 100) * 4
+       //  let WINDOW_SIZE = self.bridge.redValues.count / seconds
+        for(int i = 0; i < self.redValues.count - WINDOW_SIZE; i++) {
+            max = self.redValues[i];
+            for(int j = i; j < i + WINDOW_SIZE; j++) {
+                if(self.redValues[j] > max) { max = self.redValues[j]; }
+            }
+            [maxArray addObject:max];
+        }
+        
+        int peaks = 0;
+        
+        for (int i = 0; i < self.redValues.count - WINDOW_SIZE; i++) {
+            if (self.redValues[i] == maxArray[i]) { peaks += 1; }
+        }
+    NSLog(@"peaks: %i", peaks);
+        // NOTE
+        //double seconds = (self.redValues.count / 100) * 4;
+        //int bps = seconds/peaks;
+        return peaks / (self.redValues.count / 30) * 30;
+        //return bps * 60;
+    }
 
 
 @end

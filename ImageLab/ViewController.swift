@@ -14,6 +14,7 @@ class ViewController: UIViewController   {
     //MARK: Class Properties
     var maxArray : NSMutableArray = [];
     var peaks = 0;
+    var bpm = 0;
     var filters : [CIFilter]! = nil
     var videoManager:VideoAnalgesic! = nil
     let pinchFilterIndex = 2
@@ -23,6 +24,7 @@ class ViewController: UIViewController   {
     @IBOutlet weak var flashSlider: UISlider!
     @IBOutlet weak var stageLabel: UILabel!
     
+    @IBOutlet weak var bpmLabel: UILabel!
     @IBOutlet weak var flashButton: UIButton!
     @IBOutlet weak var cameraButton: UIButton!
     //MARK: ViewController Hierarchy
@@ -55,30 +57,19 @@ class ViewController: UIViewController   {
     //MARK: Process image output
     func processImage(inputImage:CIImage) -> CIImage{
         
-        // detect faces
-//        let f = getFaces(img: inputImage)
-        
-        // if no faces, just return original image
-//        if f.count == 0 { return inputImage }
+        if(self.bridge.isCovered) {
+            // self.flashButton.isHidden = true
+            // self.cameraButton.isHidden = true
+            self.videoManager.turnOnFlashwithLevel(1)
+        }
+        else {
+            //            self.flashButton.isHidden = false
+            //            self.cameraButton.isHidden = false
+            self.videoManager.turnOffFlash()
+        }
         
         var retImage = inputImage
-        
-        // if you just want to process on separate queue use this code
-        // this is a NON BLOCKING CALL, but any changes to the image in OpenCV cannot be displayed real time
-//        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0)) { () -> Void in
-//            self.bridge.setImage(retImage, withBounds: retImage.extent, andContext: self.videoManager.getCIContext())
-//            self.bridge.processImage()
-//        }
-        
-        // use this code if you are using OpenCV and want to overwrite the displayed image via OpenCv
-        // this is a BLOCKING CALL
-//        self.bridge.setTransforms(self.videoManager.transform)
-//        self.bridge.setImage(retImage, withBounds: retImage.extent, andContext: self.videoManager.getCIContext())
-//        self.bridge.processImage()
-//        retImage = self.bridge.getImage()
-        
-        //HINT: you can also send in the bounds of the face to ONLY process the face in OpenCV
-        // or any bounds to only process a certain bounding region in OpenCV
+
         self.bridge.setTransforms(self.videoManager.transform)
         self.bridge.setImage(retImage,
                              withBounds: retImage.extent, // the first face bounds
@@ -86,56 +77,12 @@ class ViewController: UIViewController   {
         
         self.bridge.processImage()
         retImage = self.bridge.getImageComposite() // get back opencv processed part of the image (overlayed on original)
-        if(self.bridge.isCovered) {
-            self.flashButton.isHidden = true
-            self.cameraButton.isHidden = true
-            self.videoManager.turnOnFlashwithLevel(1)
-            
-        }
-        else {
-            self.flashButton.isHidden = false
-            self.cameraButton.isHidden = false
-            self.videoManager.turnOffFlash()
-        }
-        
-        print("redValues: ", [self.bridge.redValues.count], self.bridge.redValues[self.bridge.redValues.count - 1])
 
+        print("bpm: ", self.bridge.bpm);
         
-        // 4s = 100 red values
-        //
-        
-        if(self.bridge.redValues.count > 100) {
-            var seconds = (self.bridge.redValues.count / 100) * 4
-            let WINDOW_SIZE = self.bridge.redValues.count / seconds
-            
-            
-            for (index, element) in self.bridge.redValues.enumerated() {
-                let x = index + WINDOW_SIZE
-                let i = index
-                var max = -100000.0;
-                
-                while i < x {
-                    let floatValue = self.bridge.redValues[i] as! Double
-                    if(floatValue > max) {
-                        max = floatValue
-                    }
-                }
-                maxArray.add(max); // adding max as an nsnumber
-            }
-            
-            for (index, element) in self.bridge.redValues.enumerated() {
-                let floatRedValue = self.bridge.redValues[index] as! Double
-                let floatMaxValue = maxArray[index] as! Double
-
-                if(floatRedValue == floatMaxValue) {
-                    peaks += 1
-                }
-            }
-           
-            let bps = seconds/peaks;
-            let bpm = bps * 60;
+        DispatchQueue.main.async {
+            self.bpmLabel.text = String(self.bridge.bpm)
         }
-
         
         return retImage
     }

@@ -11,6 +11,7 @@
 @interface OpenCVBridgeSub : OpenCVBridge
     
 @property (nonatomic) Boolean isCovered;
+@property (nonatomic) int bpm;
 
 @property (nonatomic) NSMutableArray* redValues;
 @end
